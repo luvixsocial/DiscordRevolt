@@ -1,6 +1,5 @@
-package main
+package functions
 
-// Importing the required packages
 import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/sentinelb51/revoltgo"
@@ -11,4 +10,3 @@ var (
 	Revolt  *revoltgo.Session
 	Discord *discordgo.Session
 )
-

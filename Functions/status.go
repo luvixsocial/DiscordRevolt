@@ -1,14 +1,16 @@
-package main
+package functions
 
 import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sentinelb51/revoltgo"
+
+	"libdozina/types"
 )
 
 // Set the status of both Discord and Revolt clients.
-func SetStatus(ActivityType ActivityType, ActivityName string, Presence Presence, Status *string) {
+func SetStatus(ActivityType types.ActivityType, ActivityName string, Presence types.Presence, Status *string) {
 	if Discord != nil {
 		statusData := discordgo.UpdateStatusData{
 			Activities: []*discordgo.Activity{

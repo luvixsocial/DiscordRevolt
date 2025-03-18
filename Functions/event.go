@@ -1,23 +1,25 @@
-package main
+package functions
 
 import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sentinelb51/revoltgo"
+
+	"libdozina/types"
 )
 
 // Event Listener for both Discord and Revolt clients.
-func OnEvent(callback func(Event)) {
+func OnEvent(callback func(types.Event)) {
 	if Discord != nil {
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageCreate) {
-			eventType := fmt.Sprintf("%T", e)
-			callback(Event{
-				Name: eventType,
-				Type: Message,
-				Data: MessageCallback{
+			EventType := fmt.Sprintf("%T", e)
+			callback(types.Event{
+				Name: EventType,
+				Type: types.Message,
+				Data: types.MessageCallback{
 					Content: e.Message.Content,
-					Author: User{
+					Author: types.User{
 						ID:       e.Author.ID,
 						Username: e.Author.Username,
 						Avatar:   e.Author.AvatarURL("128"),
@@ -27,15 +29,15 @@ func OnEvent(callback func(Event)) {
 		})
 
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.InteractionCreate) {
-			eventType := fmt.Sprintf("%T", e)
-			callback(Event{
-				Name:     eventType,
-				Type:     Interaction,
+			EventType := fmt.Sprintf("%T", e)
+			callback(types.Event{
+				Name:     EventType,
+				Type:     types.Interaction,
 				Platform: "Discord",
-				Data: InteractionCallback{
+				Data: types.InteractionCallback{
 					Name:   e.ApplicationCommandData().Name,
 					Fields: convertOptionsToMap(e.ApplicationCommandData().Options),
-					Author: User{
+					Author: types.User{
 						ID:       e.Member.User.ID,
 						Username: e.Member.User.Username,
 						Avatar:   e.Member.User.AvatarURL("128"),
@@ -47,7 +49,7 @@ func OnEvent(callback func(Event)) {
 
 	if Revolt != nil {
 		Revolt.AddHandler(func(e *revoltgo.Session, m *revoltgo.EventMessage) {
-			eventType := fmt.Sprintf("%T", m)
+			EventType := fmt.Sprintf("%T", m)
 			authorData, err := Revolt.User(m.Author)
 
 			if err != nil {
@@ -55,13 +57,13 @@ func OnEvent(callback func(Event)) {
 				return
 			}
 
-			callback(Event{
-				Name:     eventType,
-				Type:     Message,
+			callback(types.Event{
+				Name:     EventType,
+				Type:     types.Message,
 				Platform: "Revolt",
-				Data: MessageCallback{
+				Data: types.MessageCallback{
 					Content: m.Content,
-					Author: User{
+					Author: types.User{
 						ID:       authorData.ID,
 						Username: authorData.Username,
 						Avatar:   authorData.Avatar.URL("128"),
