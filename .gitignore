@@ -1,0 +1,5 @@
+config.yaml
+libdozina
+go.sum
+venv
+test.go
