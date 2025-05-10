@@ -12,6 +12,9 @@ type Event struct {
 	Name     string
 	Type     EventType
 	Platform string
+	Bot      bool
+	Context  any
+	Session  any
 	Data     interface{}
 }
 

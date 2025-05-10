@@ -9,7 +9,7 @@ import (
 func Config(discord string, revolt string) {
 	var err error
 	Revolt = revoltgo.New(revolt)
-	Discord, err = discordgo.New(discord)
+	Discord, err = discordgo.New("Bot " + discord)
 	if err != nil {
 		panic(err)
 	}

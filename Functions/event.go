@@ -15,8 +15,12 @@ func OnEvent(callback func(types.Event)) {
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageCreate) {
 			EventType := fmt.Sprintf("%T", e)
 			callback(types.Event{
-				Name: EventType,
-				Type: types.Message,
+				Name:     EventType,
+				Type:     types.Message,
+				Platform: "Discord",
+				Bot:      e.Author.Bot,
+				Context:  e,
+				Session:  s,
 				Data: types.MessageCallback{
 					Content: e.Message.Content,
 					Author: types.User{
@@ -34,6 +38,9 @@ func OnEvent(callback func(types.Event)) {
 				Name:     EventType,
 				Type:     types.Interaction,
 				Platform: "Discord",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
 				Data: types.InteractionCallback{
 					Name:   e.ApplicationCommandData().Name,
 					Fields: convertOptionsToMap(e.ApplicationCommandData().Options),
@@ -61,6 +68,9 @@ func OnEvent(callback func(types.Event)) {
 				Name:     EventType,
 				Type:     types.Message,
 				Platform: "Revolt",
+				Bot:      authorData.Bot != nil,
+				Context:  m,
+				Session:  e,
 				Data: types.MessageCallback{
 					Content: m.Content,
 					Author: types.User{
