@@ -1,6 +1,9 @@
 package types
 
-// Events
+/*
+ * @title Events
+ * @description These types are used to define the events that can be received from the Discord and Revolt APIs.
+ */
 type EventType string
 
 const (
@@ -18,7 +21,10 @@ type Event struct {
 	Data     interface{}
 }
 
-// Activities
+/*
+ * @title Activity Types
+ * @description These types are used to define the activity types that can be set for the bots presence.
+ */
 type ActivityType int
 
 const (
@@ -30,7 +36,29 @@ const (
 	ActivityTypeCompeting ActivityType = 5
 )
 
-// Presences
+/*
+ * @title Config
+ * @description These types are used to define the configuration for the bots.
+ */
+type DiscordConfig struct {
+	ClientID     string
+	ClientSecret string
+	Token        string
+}
+
+type RevoltConfig struct {
+	Token string
+}
+
+type Config struct {
+	Discord DiscordConfig
+	Revolt  RevoltConfig
+}
+
+/*
+ * @title Presence
+ * @description These types are used to define the presence of the bots.
+ */
 type Presence string
 
 const (
@@ -41,22 +69,41 @@ const (
 	Invisible Presence = "Invisible"
 )
 
-// Users
+/*
+ * @title User
+ * @description These types are used to define the user object that is returned from the Discord and Revolt APIs.
+ */
 type User struct {
 	ID       string
 	Username string
 	Avatar   string
 }
 
-// Message Callback
+/*
+ * @title Message
+ * @description These types are used to define the message object that is returned from the Discord and Revolt APIs.
+ */
 type MessageCallback struct {
 	Content string
 	Author  User
 }
 
-// Interaction Callback
+/*
+ * @title Interaction
+ * @description These types are used to define the interaction object that is returned from the Discord and Revolt APIs.
+ */
 type InteractionCallback struct {
 	Name   string
 	Fields map[string]string
 	Author User
+}
+
+/*
+ * @title Embed
+ * @description These types are used to define the embed object that is sent to the Discord and Revolt APIs.
+ */
+type Embed struct {
+	Title       string
+	Description string
+	Color       int
 }
