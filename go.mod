@@ -1,4 +1,4 @@
-module libdozina
+module whiskercat
 
 go 1.24.1
 

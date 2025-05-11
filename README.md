@@ -1,6 +1,6 @@
-# DiscordRevolt
+# WhiskerCat
 
-DiscordRevolt is a powerful Go library designed to handle WebSocket events from both **Discord** and **Revolt Chat**. With **DiscordRevolt**, developers can build cross-platform bots that use a single command structure to interact seamlessly with both platforms.
+WhiskerCat is a powerful Go library designed to handle WebSocket events from both **Discord** and **Revolt Chat**. With **WhiskerCat**, developers can build cross-platform bots that use a single command structure to interact seamlessly with both platforms.
 
 ## Features
 
@@ -12,10 +12,10 @@ DiscordRevolt is a powerful Go library designed to handle WebSocket events from 
 
 ## Installation
 
-To install **DiscordRevolt**, run the following command:
+To install **WhiskerCat**, run the following command:
 
 ```sh
-go get github.com/luvixsocial/discordrevolt
+go get github.com/luvixsocial/WhiskerCat
 ```
 
 ## Getting Started
@@ -29,14 +29,23 @@ package main
 
 import (
 	"fmt"
-	bot "github.com/luvixsocial/discordrevolt"
+	bot "github.com/luvixsocial/WhiskerCat"
 )
 
 // Test
 func main() {
-	bot.Config("YOUR_DISCORD_TOKEN", "YOUR_REVOLT_TOKEN")
+	bot.Config(&types.Config{
+        Discord: &types.DiscordConfig{
+            ClientID:     "YOUR_DISCORD_CLIENT_ID",
+            ClientSecret: "YOUR_DISCORD_CLIENT_SECRET",
+            Token:        "YOUR_DISCORD_BOT_TOKEN",
+        },
+        Revolt: &types.RevoltConfig{
+            Token: "YOUR_REVOLT_BOT_TOKEN",
+        },
+    })
 	bot.Start()
-	bot.SetStatus(bot.ActivityTypeGame, "Working on Luvix Social", bot.Online, nil)
+	bot.SetStatus(types.ActivityTypeGame, "Working on Luvix Social", types.Online, nil)
 
 	bot.OnEvent(func(evt Event) {
 		fmt.Printf("Received event: %s\nType: %+v\nData: %+v\n", evt.Name, evt.Type, evt.Data)
@@ -53,11 +62,12 @@ Events from both **Discord** and **Revolt Chat** can be handled using `OnEvent()
 ```go
 OnEvent(func(evt Event) {
 	fmt.Println("Received event:", evt.Name, "Type:", evt.Type, "Data:", evt.Data)
+    bot.Respond(evt, "Hello from WhiskerCat!", nil, nil)
 })
 ```
 
 ### Supported Events
-DiscordRevolt currently supports handling the following events:
+WhiskerCat currently supports handling the following events:
 
 - **Message Create** - Triggered when a message is sent in a channel.
 - **Interaction Create (Discord only)** - Triggered when an interaction (such as a slash command) is executed.
@@ -67,7 +77,7 @@ DiscordRevolt currently supports handling the following events:
 You can set the bot's status using the `SetStatus()` function:
 
 ```go
-bot.SetStatus(bot.ActivityTypeGame, "Developing with DiscordRevolt", bot.Online, nil)
+bot.SetStatus(types.ActivityTypeGame, "Developing with WhiskerCat", types.Online, nil)
 ```
 
 ## Advanced Usage
@@ -107,5 +117,5 @@ This project is licensed under the **MIT License**.
 
 ---
 
-_DiscordRevolt is part of the **Luvix Social** ecosystem, providing powerful tools for seamless bot development._
+_WhiskerCat is part of the **Luvix Social** ecosystem, providing powerful tools for seamless bot development._
 

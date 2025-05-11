@@ -6,7 +6,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/sentinelb51/revoltgo"
 
-	"libdozina/types"
+	"whiskercat/types"
 )
 
 // Event Listener for both Discord and Revolt clients.

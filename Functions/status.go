@@ -6,7 +6,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/sentinelb51/revoltgo"
 
-	"libdozina/types"
+	"whiskercat/types"
 )
 
 // Set the status of both Discord and Revolt clients.

@@ -1,6 +1,6 @@
 all:
 	CGO_ENABLED=0 go build -v
 start:
-	./libdozina
+	./whiskercat
 clean:
 	go fmt ./...

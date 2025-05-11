@@ -2,7 +2,7 @@ package functions
 
 import (
 	"fmt"
-	"libdozina/types"
+	"whiskercat/types"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sentinelb51/revoltgo"
