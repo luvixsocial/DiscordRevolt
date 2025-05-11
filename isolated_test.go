@@ -95,6 +95,84 @@ func isolatedtest() {
 					}
 				}
 			}
+		} else if evt.Type == "MessageUpdate" {
+			if stdout {
+				var channelID string
+
+				switch evt.Platform {
+				case "Discord":
+					if ctx, ok := evt.Context.(*discordgo.MessageUpdate); ok {
+						channelID = ctx.ChannelID
+					}
+				case "Revolt":
+					if ctx, ok := evt.Context.(*revoltgo.EventMessageUpdate); ok {
+						channelID = ctx.Channel
+					}
+				}
+
+				if channelID != "" {
+					_, err := functions.SendMessage(evt.Platform, channelID, "", &types.Embed{
+						Title:       "Event Received.",
+						Description: fmt.Sprintf("%+v", evt),
+						Color:       0x00FF00,
+					})
+					if err != nil {
+						fmt.Printf("Error sending message: %v\n", err.Error())
+					}
+				}
+			}
+		} else if evt.Type == "ReactionAdd" {
+			if stdout {
+				var channelID string
+
+				switch evt.Platform {
+				case "Discord":
+					if ctx, ok := evt.Context.(*discordgo.MessageReactionAdd); ok {
+						channelID = ctx.ChannelID
+					}
+				case "Revolt":
+					if ctx, ok := evt.Context.(*revoltgo.EventMessageReact); ok {
+						channelID = ctx.ChannelID
+					}
+				}
+
+				if channelID != "" {
+					_, err := functions.SendMessage(evt.Platform, channelID, "", &types.Embed{
+						Title:       "Event Received.",
+						Description: fmt.Sprintf("%+v", evt),
+						Color:       0x00FF00,
+					})
+					if err != nil {
+						fmt.Printf("Error sending message: %v\n", err.Error())
+					}
+				}
+			}
+		} else if evt.Type == "ReactionRemove" {
+			if stdout {
+				var channelID string
+
+				switch evt.Platform {
+				case "Discord":
+					if ctx, ok := evt.Context.(*discordgo.MessageReactionRemove); ok {
+						channelID = ctx.ChannelID
+					}
+				case "Revolt":
+					if ctx, ok := evt.Context.(*revoltgo.EventMessageRemoveReaction); ok {
+						channelID = ctx.ChannelID
+					}
+				}
+
+				if channelID != "" {
+					_, err := functions.SendMessage(evt.Platform, channelID, "", &types.Embed{
+						Title:       "Event Received.",
+						Description: fmt.Sprintf("%+v", evt),
+						Color:       0x00FF00,
+					})
+					if err != nil {
+						fmt.Printf("Error sending message: %v\n", err.Error())
+					}
+				}
+			}
 		}
 	})
 
