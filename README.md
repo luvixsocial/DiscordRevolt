@@ -71,7 +71,7 @@ WhiskerCat currently supports handling the following events:
 
 - **Message Create** - Triggered when a message is sent in a channel.
 - **Message Update** - Triggered when a message is updated.
-- **Message Delete* - Triggered when a message is deleted.
+- **Message Delete** - Triggered when a message is deleted.
 - **ReactionAdd** - Triggered when a message receives a reaction.
 - **ReactionRemove** - Triggered when a message loses a reaction.
 - **Interaction Create (Discord only)** - Triggered when an interaction (such as a slash command) is executed.
