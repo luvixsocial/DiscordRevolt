@@ -12,6 +12,7 @@ import (
 // Event Listener for both Discord and Revolt clients.
 func OnEvent(callback func(types.Event)) {
 	if Discord != nil {
+		// MessageCreate
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageCreate) {
 			EventType := fmt.Sprintf("%T", e)
 			callback(types.Event{
@@ -32,6 +33,28 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
+		// MessageUpdate
+		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageUpdate) {
+			EventType := fmt.Sprintf("%T", e)
+			callback(types.Event{
+				Name:     EventType,
+				Type:     types.MessageUpdate,
+				Platform: "Discord",
+				Bot:      e.Author.Bot,
+				Context:  e,
+				Session:  s,
+				Data: types.MessageCallback{
+					Content: e.Message.Content,
+					Author: types.User{
+						ID:       e.Author.ID,
+						Username: e.Author.Username,
+						Avatar:   e.Author.AvatarURL("128"),
+					},
+				},
+			})
+		})
+
+		// InteractionCreate
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.InteractionCreate) {
 			EventType := fmt.Sprintf("%T", e)
 			callback(types.Event{
@@ -55,6 +78,7 @@ func OnEvent(callback func(types.Event)) {
 	}
 
 	if Revolt != nil {
+		// MessageCreate
 		Revolt.AddHandler(func(e *revoltgo.Session, m *revoltgo.EventMessage) {
 			EventType := fmt.Sprintf("%T", m)
 			authorData, err := Revolt.User(m.Author)
@@ -73,6 +97,34 @@ func OnEvent(callback func(types.Event)) {
 				Session:  e,
 				Data: types.MessageCallback{
 					Content: m.Content,
+					Author: types.User{
+						ID:       authorData.ID,
+						Username: authorData.Username,
+						Avatar:   authorData.Avatar.URL("128"),
+					},
+				},
+			})
+		})
+
+		// MessageUpdate
+		Revolt.AddHandler(func(e *revoltgo.Session, m *revoltgo.EventMessageUpdate) {
+			EventType := fmt.Sprintf("%T", m)
+			authorData, err := Revolt.User(m.Data.Author)
+
+			if err != nil {
+				fmt.Println("Failed to get author data:", err)
+				return
+			}
+
+			callback(types.Event{
+				Name:     EventType,
+				Type:     types.MessageUpdate,
+				Platform: "Revolt",
+				Bot:      authorData.Bot != nil,
+				Context:  m,
+				Session:  e,
+				Data: types.MessageCallback{
+					Content: m.Data.Content,
 					Author: types.User{
 						ID:       authorData.ID,
 						Username: authorData.Username,

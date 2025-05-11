@@ -135,3 +135,37 @@ func Respond(e types.Event, content string, embed *types.Embed, edit *string) (i
 
 	return nil, fmt.Errorf("unsupported platform or context")
 }
+
+// Helper function to send a message to any channel.
+func SendMessage(platform string, channelID string, content string, embed *types.Embed) (interface{}, error) {
+	switch platform {
+	case "Discord":
+		msg := &discordgo.MessageSend{
+			Content: content,
+		}
+		if embed != nil {
+			msg.Embeds = []*discordgo.MessageEmbed{{
+				Title:       embed.Title,
+				Description: embed.Description,
+				Color:       embed.Color,
+			}}
+		}
+		return Discord.ChannelMessageSendComplex(channelID, msg)
+
+	case "Revolt":
+		sendMsg := revoltgo.MessageSend{
+			Content: content,
+		}
+		if embed != nil {
+			sendMsg.Embeds = []*revoltgo.MessageEmbed{{
+				Title:       embed.Title,
+				Description: embed.Description,
+				Colour:      fmt.Sprintf("#%06X", embed.Color),
+			}}
+		}
+		return Revolt.ChannelMessageSend(channelID, sendMsg)
+
+	default:
+		return nil, fmt.Errorf("unsupported platform: %s", platform)
+	}
+}

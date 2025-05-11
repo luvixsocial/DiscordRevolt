@@ -7,8 +7,9 @@ package types
 type EventType string
 
 const (
-	Message     EventType = "Message"
-	Interaction EventType = "Interaction"
+	Message       EventType = "Message"
+	MessageUpdate EventType = "MessageUpdate"
+	Interaction   EventType = "Interaction"
 )
 
 type Event struct {
