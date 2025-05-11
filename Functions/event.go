@@ -54,6 +54,34 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
+		// MessageReactionAdd
+		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageReactionAdd) {
+			EventType := fmt.Sprintf("%T", e)
+			callback(types.Event{
+				Name:     EventType,
+				Type:     types.ReactionAdd,
+				Platform: "Discord",
+				Bot:      e.Member.User.Bot,
+				Context:  e,
+				Session:  s,
+				Data:     nil,
+			})
+		})
+
+		// MessageReactionRemove
+		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageReactionRemove) {
+			EventType := fmt.Sprintf("%T", e)
+			callback(types.Event{
+				Name:     EventType,
+				Type:     types.ReactionRemove,
+				Platform: "Discord",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
+				Data:     nil,
+			})
+		})
+
 		// InteractionCreate
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.InteractionCreate) {
 			EventType := fmt.Sprintf("%T", e)
@@ -131,6 +159,36 @@ func OnEvent(callback func(types.Event)) {
 						Avatar:   authorData.Avatar.URL("128"),
 					},
 				},
+			})
+		})
+
+		// MessageReactionAdd
+		Revolt.AddHandler(func(e *revoltgo.Session, m *revoltgo.EventMessageReact) {
+			EventType := fmt.Sprintf("%T", m)
+
+			callback(types.Event{
+				Name:     EventType,
+				Type:     types.ReactionAdd,
+				Platform: "Revolt",
+				Bot:      false,
+				Context:  m,
+				Session:  e,
+				Data:     nil,
+			})
+		})
+
+		// MessageReactionRemove
+		Revolt.AddHandler(func(e *revoltgo.Session, m *revoltgo.EventMessageRemoveReaction) {
+			EventType := fmt.Sprintf("%T", m)
+
+			callback(types.Event{
+				Name:     EventType,
+				Type:     types.ReactionRemove,
+				Platform: "Revolt",
+				Bot:      false,
+				Context:  m,
+				Session:  e,
+				Data:     nil,
 			})
 		})
 	}
