@@ -1,112 +1,136 @@
 package types
 
-/*
- * @title Events
- * @description These types are used to define the events that can be received from the Discord and Revolt APIs.
- */
+// EventType represents the type of event received from a chat platform.
 type EventType string
 
 const (
-	Message        EventType = "Message"
-	MessageUpdate  EventType = "MessageUpdate"
-	ReactionAdd    EventType = "ReactionAdd"
+	// MessageCreate is triggered when a new message is created.
+	MessageCreate EventType = "MessageCreate"
+
+	// MessageUpdate is triggered when an existing message is edited.
+	MessageUpdate EventType = "MessageUpdate"
+
+	// MessageDelete is triggered when a message is deleted.
+	MessageDelete EventType = "MessageDelete"
+
+	// ReactionAdd is triggered when a reaction is added to a message.
+	ReactionAdd EventType = "ReactionAdd"
+
+	// ReactionRemove is triggered when a reaction is removed from a message.
 	ReactionRemove EventType = "ReactionRemove"
-	Interaction    EventType = "Interaction"
+
+	// InteractionCreate is triggered when an interaction is received (e.g., slash command).
+	InteractionCreate EventType = "InteractionCreate"
 )
 
+// Event holds information about a received platform event.
 type Event struct {
-	Name     string
-	Type     EventType
+	// Name is an optional identifier for the event (custom or descriptive).
+	Name string
+
+	// Type specifies the type of event (e.g., MessageCreate).
+	Type EventType
+
+	// Platform indicates which platform the event originated from (e.g., "Discord", "Revolt").
 	Platform string
-	Bot      bool
-	Context  any
-	Session  any
-	Data     interface{}
+
+	// Bot is true if the event was triggered by the bot itself.
+	Bot bool
+
+	// Context is the raw platform-specific context (e.g., *discordgo.MessageCreate or *revoltgo.EventMessage).
+	Context any
+
+	// Session is the active session for the platform (e.g., *discordgo.Session).
+	Session any
+
+	// Data holds the parsed payload, such as a MessageCallback or InteractionCallback.
+	Data interface{}
 }
 
-/*
- * @title Activity Types
- * @description These types are used to define the activity types that can be set for the bots presence.
- */
+// ActivityType represents the type of activity a bot can display in its presence.
 type ActivityType int
 
 const (
-	ActivityTypeGame      ActivityType = 0
-	ActivityTypeStreaming ActivityType = 1
-	ActivityTypeListening ActivityType = 2
-	ActivityTypeWatching  ActivityType = 3
-	ActivityTypeCustom    ActivityType = 4
-	ActivityTypeCompeting ActivityType = 5
+	// ActivityTypeGame shows the bot as "Playing [name]".
+	ActivityTypeGame ActivityType = iota
+
+	// ActivityTypeStreaming shows the bot as "Streaming [name]".
+	ActivityTypeStreaming
+
+	// ActivityTypeListening shows the bot as "Listening to [name]".
+	ActivityTypeListening
+
+	// ActivityTypeWatching shows the bot as "Watching [name]".
+	ActivityTypeWatching
+
+	// ActivityTypeCustom allows a custom status message.
+	ActivityTypeCustom
+
+	// ActivityTypeCompeting shows the bot as "Competing in [name]".
+	ActivityTypeCompeting
 )
 
-/*
- * @title Config
- * @description These types are used to define the configuration for the bots.
- */
+// DiscordConfig stores Discord-specific bot credentials and settings.
 type DiscordConfig struct {
-	ClientID     string
-	ClientSecret string
-	Token        string
+	ClientID     string // OAuth2 client ID
+	ClientSecret string // OAuth2 client secret
+	Token        string // Bot token
 }
 
+// RevoltConfig stores Revolt-specific bot credentials.
 type RevoltConfig struct {
-	Token string
+	Token string // Bot token
 }
 
+// Config holds configuration for all supported platforms.
 type Config struct {
 	Discord DiscordConfig
 	Revolt  RevoltConfig
 }
 
-/*
- * @title Presence
- * @description These types are used to define the presence of the bots.
- */
+// Presence represents a bot's visibility or availability status.
 type Presence string
 
 const (
-	Online    Presence = "Online"
-	Idle      Presence = "Idle"
-	DND       Presence = "DND"
-	Busy      Presence = "Busy"
+	// Online indicates the bot is active and visible.
+	Online Presence = "Online"
+
+	// Idle indicates the bot is inactive but still online.
+	Idle Presence = "Idle"
+
+	// DND means "Do Not Disturb"; the bot won't respond.
+	DND Presence = "DND"
+
+	// Busy is a custom presence indicating the bot is occupied.
+	Busy Presence = "Busy"
+
+	// Invisible appears offline to users.
 	Invisible Presence = "Invisible"
 )
 
-/*
- * @title User
- * @description These types are used to define the user object that is returned from the Discord and Revolt APIs.
- */
+// User defines a basic user structure returned by chat APIs.
 type User struct {
-	ID       string
-	Username string
-	Avatar   string
+	ID       string // Unique user ID
+	Username string // Display name or tag
+	Avatar   string // URL or identifier for the user's avatar
 }
 
-/*
- * @title Message
- * @description These types are used to define the message object that is returned from the Discord and Revolt APIs.
- */
+// MessageCallback represents the content and author of a received message.
 type MessageCallback struct {
-	Content string
-	Author  User
+	Content string // Message text content
+	Author  User   // User who sent the message
 }
 
-/*
- * @title Interaction
- * @description These types are used to define the interaction object that is returned from the Discord and Revolt APIs.
- */
+// InteractionCallback represents data sent with a user interaction, such as a slash command.
 type InteractionCallback struct {
-	Name   string
-	Fields map[string]string
-	Author User
+	Name   string            // Command or interaction name
+	Fields map[string]string // Key-value pairs of submitted form data or arguments
+	Author User              // User who initiated the interaction
 }
 
-/*
- * @title Embed
- * @description These types are used to define the embed object that is sent to the Discord and Revolt APIs.
- */
+// Embed defines a rich content structure for sending styled messages.
 type Embed struct {
-	Title       string
-	Description string
-	Color       int
+	Title       string // Title of the embed
+	Description string // Body content of the embed
+	Color       int    // Color accent (integer representing a hex code)
 }

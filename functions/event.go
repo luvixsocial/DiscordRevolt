@@ -9,21 +9,25 @@ import (
 	"whiskercat/types"
 )
 
-// Event Listener for both Discord and Revolt clients.
+// OnEvent registers a unified event listener for both Discord and Revolt platforms.
+// It accepts a callback function that will be invoked with a normalized `types.Event` object
+// regardless of which platform the original event originated from.
+//
+// This helps abstract away platform-specific differences and allows uniform event handling.
 func OnEvent(callback func(types.Event)) {
+	// Discord event listeners
 	if Discord != nil {
-		// MessageCreate
+		// Handle Discord message creation
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageCreate) {
-			EventType := fmt.Sprintf("%T", e)
 			callback(types.Event{
-				Name:     EventType,
-				Type:     types.Message,
+				Name:     fmt.Sprintf("%T", e),
+				Type:     types.MessageCreate,
 				Platform: "Discord",
 				Bot:      e.Author.Bot,
 				Context:  e,
 				Session:  s,
 				Data: types.MessageCallback{
-					Content: e.Message.Content,
+					Content: e.Content,
 					Author: types.User{
 						ID:       e.Author.ID,
 						Username: e.Author.Username,
@@ -33,18 +37,17 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
-		// MessageUpdate
+		// Handle Discord message updates
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageUpdate) {
-			EventType := fmt.Sprintf("%T", e)
 			callback(types.Event{
-				Name:     EventType,
+				Name:     fmt.Sprintf("%T", e),
 				Type:     types.MessageUpdate,
 				Platform: "Discord",
 				Bot:      e.Author.Bot,
 				Context:  e,
 				Session:  s,
 				Data: types.MessageCallback{
-					Content: e.Message.Content,
+					Content: e.Content,
 					Author: types.User{
 						ID:       e.Author.ID,
 						Username: e.Author.Username,
@@ -54,11 +57,10 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
-		// MessageReactionAdd
+		// Handle Discord reaction additions
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageReactionAdd) {
-			EventType := fmt.Sprintf("%T", e)
 			callback(types.Event{
-				Name:     EventType,
+				Name:     fmt.Sprintf("%T", e),
 				Type:     types.ReactionAdd,
 				Platform: "Discord",
 				Bot:      e.Member.User.Bot,
@@ -68,11 +70,10 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
-		// MessageReactionRemove
+		// Handle Discord reaction removals
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageReactionRemove) {
-			EventType := fmt.Sprintf("%T", e)
 			callback(types.Event{
-				Name:     EventType,
+				Name:     fmt.Sprintf("%T", e),
 				Type:     types.ReactionRemove,
 				Platform: "Discord",
 				Bot:      false,
@@ -82,12 +83,11 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
-		// InteractionCreate
+		// Handle Discord interactions (e.g., slash commands)
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.InteractionCreate) {
-			EventType := fmt.Sprintf("%T", e)
 			callback(types.Event{
-				Name:     EventType,
-				Type:     types.Interaction,
+				Name:     fmt.Sprintf("%T", e),
+				Type:     types.InteractionCreate,
 				Platform: "Discord",
 				Bot:      false,
 				Context:  e,
@@ -105,24 +105,23 @@ func OnEvent(callback func(types.Event)) {
 		})
 	}
 
+	// Revolt event listeners
 	if Revolt != nil {
-		// MessageCreate
-		Revolt.AddHandler(func(e *revoltgo.Session, m *revoltgo.EventMessage) {
-			EventType := fmt.Sprintf("%T", m)
+		// Handle Revolt message creation
+		Revolt.AddHandler(func(s *revoltgo.Session, m *revoltgo.EventMessage) {
 			authorData, err := Revolt.User(m.Author)
-
 			if err != nil {
-				fmt.Println("Failed to get author data:", err)
+				fmt.Println("Failed to fetch Revolt user data:", err)
 				return
 			}
 
 			callback(types.Event{
-				Name:     EventType,
-				Type:     types.Message,
+				Name:     fmt.Sprintf("%T", m),
+				Type:     types.MessageCreate,
 				Platform: "Revolt",
 				Bot:      authorData.Bot != nil,
 				Context:  m,
-				Session:  e,
+				Session:  s,
 				Data: types.MessageCallback{
 					Content: m.Content,
 					Author: types.User{
@@ -134,23 +133,21 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
-		// MessageUpdate
-		Revolt.AddHandler(func(e *revoltgo.Session, m *revoltgo.EventMessageUpdate) {
-			EventType := fmt.Sprintf("%T", m)
+		// Handle Revolt message updates
+		Revolt.AddHandler(func(s *revoltgo.Session, m *revoltgo.EventMessageUpdate) {
 			authorData, err := Revolt.User(m.Data.Author)
-
 			if err != nil {
-				fmt.Println("Failed to get author data:", err)
+				fmt.Println("Failed to fetch Revolt user data:", err)
 				return
 			}
 
 			callback(types.Event{
-				Name:     EventType,
+				Name:     fmt.Sprintf("%T", m),
 				Type:     types.MessageUpdate,
 				Platform: "Revolt",
 				Bot:      authorData.Bot != nil,
 				Context:  m,
-				Session:  e,
+				Session:  s,
 				Data: types.MessageCallback{
 					Content: m.Data.Content,
 					Author: types.User{
@@ -162,32 +159,28 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
-		// MessageReactionAdd
-		Revolt.AddHandler(func(e *revoltgo.Session, m *revoltgo.EventMessageReact) {
-			EventType := fmt.Sprintf("%T", m)
-
+		// Handle Revolt reaction additions
+		Revolt.AddHandler(func(s *revoltgo.Session, m *revoltgo.EventMessageReact) {
 			callback(types.Event{
-				Name:     EventType,
+				Name:     fmt.Sprintf("%T", m),
 				Type:     types.ReactionAdd,
 				Platform: "Revolt",
 				Bot:      false,
 				Context:  m,
-				Session:  e,
+				Session:  s,
 				Data:     nil,
 			})
 		})
 
-		// MessageReactionRemove
-		Revolt.AddHandler(func(e *revoltgo.Session, m *revoltgo.EventMessageRemoveReaction) {
-			EventType := fmt.Sprintf("%T", m)
-
+		// Handle Revolt reaction removals
+		Revolt.AddHandler(func(s *revoltgo.Session, m *revoltgo.EventMessageRemoveReaction) {
 			callback(types.Event{
-				Name:     EventType,
+				Name:     fmt.Sprintf("%T", m),
 				Type:     types.ReactionRemove,
 				Platform: "Revolt",
 				Bot:      false,
 				Context:  m,
-				Session:  e,
+				Session:  s,
 				Data:     nil,
 			})
 		})
