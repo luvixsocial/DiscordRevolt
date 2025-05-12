@@ -44,11 +44,11 @@ func isolated_test() {
 		switch evt.Type {
 		case types.MessageCreate:
 			handleMessageCreate(evt, &stdout)
-		case types.MessageDelete:
+		case types.MessageUpdate:
 			if stdout {
 				emitEventEmbed(evt, getChannelID(evt))
 			}
-		case types.MessageUpdate:
+		case types.MessageDelete:
 			if stdout {
 				emitEventEmbed(evt, getChannelID(evt))
 			}
@@ -98,6 +98,16 @@ func handleMessageCreate(evt types.Event, stdout *bool) {
 
 	case "test":
 		functions.Respond(evt, "Received test event!", nil, nil)
+
+	case "test:embed":
+		_, err := functions.Respond(evt, "", &types.Embed{
+			Title:       "Test Embed",
+			Description: "This is a test embed.",
+			Color:       0x00FF00,
+		}, nil)
+		if err != nil {
+			fmt.Printf("Error sending embed: %v\n", err)
+		}
 
 	default:
 		if *stdout {
