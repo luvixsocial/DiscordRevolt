@@ -44,6 +44,10 @@ func isolated_test() {
 		switch evt.Type {
 		case types.MessageCreate:
 			handleMessageCreate(evt, &stdout)
+		case types.MessageDelete:
+			if stdout {
+				emitEventEmbed(evt, getChannelID(evt))
+			}
 		case types.MessageUpdate:
 			if stdout {
 				emitEventEmbed(evt, getChannelID(evt))
@@ -128,6 +132,8 @@ func getChannelID(evt types.Event) string {
 		switch ctx := evt.Context.(type) {
 		case *discordgo.MessageUpdate:
 			return ctx.ChannelID
+		case *discordgo.MessageDelete:
+			return ctx.ChannelID
 		case *discordgo.MessageReactionAdd:
 			return ctx.ChannelID
 		case *discordgo.MessageReactionRemove:
@@ -136,6 +142,8 @@ func getChannelID(evt types.Event) string {
 	case "Revolt":
 		switch ctx := evt.Context.(type) {
 		case *revoltgo.EventMessageUpdate:
+			return ctx.Channel
+		case *revoltgo.EventMessageDelete:
 			return ctx.Channel
 		case *revoltgo.EventMessageReact:
 			return ctx.ChannelID

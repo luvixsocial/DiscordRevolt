@@ -57,6 +57,26 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
+		// Handle Discord message deletions
+		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageDelete) {
+			callback(types.Event{
+				Name:     fmt.Sprintf("%T", e),
+				Type:     types.MessageDelete,
+				Platform: "Discord",
+				Bot:      e.Author.Bot,
+				Context:  e,
+				Session:  s,
+				Data: types.MessageCallback{
+					Content: e.Content,
+					Author: types.User{
+						ID:       e.Author.ID,
+						Username: e.Author.Username,
+						Avatar:   e.Author.AvatarURL("128"),
+					},
+				},
+			})
+		})
+
 		// Handle Discord reaction additions
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageReactionAdd) {
 			callback(types.Event{
@@ -156,6 +176,19 @@ func OnEvent(callback func(types.Event)) {
 						Avatar:   authorData.Avatar.URL("128"),
 					},
 				},
+			})
+		})
+
+		// Handle Revolt message deletions
+		Revolt.AddHandler(func(s *revoltgo.Session, m *revoltgo.EventMessageDelete) {
+			callback(types.Event{
+				Name:     fmt.Sprintf("%T", m),
+				Type:     types.MessageDelete,
+				Platform: "Revolt",
+				Bot:      false,
+				Context:  m,
+				Session:  s,
+				Data:     nil,
 			})
 		})
 
