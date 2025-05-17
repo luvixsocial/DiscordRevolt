@@ -5,6 +5,9 @@ import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
+	"github.com/sentinelb51/revoltgo"
 )
 
 // Start initializes and runs both the Discord and Revolt clients concurrently.
@@ -12,7 +15,7 @@ import (
 //
 // This function uses a WaitGroup to ensure both clients are launched before continuing.
 // In the event of an error while opening a client, the program will terminate immediately.
-func Start() {
+func Start() (*discordgo.Session, *revoltgo.Session) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 
@@ -48,4 +51,6 @@ func Start() {
 	}()
 
 	wg.Wait()
+
+	return Discord, Revolt
 }

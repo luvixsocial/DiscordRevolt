@@ -1,5 +1,7 @@
 package types
 
+import "github.com/bwmarrin/discordgo"
+
 // EventType represents the type of event received from a chat platform.
 type EventType string
 
@@ -21,6 +23,39 @@ const (
 
 	// InteractionCreate is triggered when an interaction is received (e.g., slash command).
 	InteractionCreate EventType = "InteractionCreate"
+
+	// TypingStart is triggered when a user starts typing.
+	EventTypingStart EventType = "TypingStart"
+
+	// VoiceStateUpdate is triggered when a voice state changes.
+	EventVoiceStateUpdate EventType = "VoiceStateUpdate"
+
+	// PresenceUpdate is triggered when a presence is updated.
+	EventPresenceUpdate EventType = "PresenceUpdate"
+
+	// GuildMemberAdd is triggered when a user joins a guild.
+	EventGuildMemberAdd EventType = "GuildMemberAdd"
+
+	// GuildMemberRemove is triggered when a user leaves a guild.
+	EventGuildMemberRemove EventType = "GuildMemberRemove"
+
+	// ChannelCreate is triggered when a new channel is created.
+	EventChannelCreate EventType = "ChannelCreate"
+
+	// ChannelUpdate is triggered when a channel is updated.
+	EventChannelUpdate EventType = "ChannelUpdate"
+
+	// ChannelDelete is triggered when a channel is deleted.
+	EventChannelDelete EventType = "ChannelDelete"
+
+	// UserUpdate is triggered when a user updates their profile.
+	EventUserUpdate EventType = "UserUpdate"
+
+	// MemberJoin is triggered when a user joins a server (Revolt).
+	EventMemberJoin EventType = "MemberJoin"
+
+	// MemberLeave is triggered when a user leaves a server (Revolt).
+	EventMemberLeave EventType = "MemberLeave"
 )
 
 // Event holds information about a received platform event.
@@ -125,7 +160,8 @@ type MessageCallback struct {
 type InteractionCallback struct {
 	Name   string            // Command or interaction name
 	Fields map[string]string // Key-value pairs of submitted form data or arguments
-	Author User              // User who initiated the interaction
+	Data   *discordgo.InteractionCreate
+	Author User // User who initiated the interaction
 }
 
 // Embed defines a rich content structure for sending styled messages.

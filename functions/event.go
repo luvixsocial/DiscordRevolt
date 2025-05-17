@@ -1,26 +1,19 @@
 package functions
 
 import (
-	"fmt"
-
 	"github.com/bwmarrin/discordgo"
 	"github.com/sentinelb51/revoltgo"
 
 	"whiskercat/types"
 )
 
-// OnEvent registers a unified event listener for both Discord and Revolt platforms.
-// It accepts a callback function that will be invoked with a normalized `types.Event` object
-// regardless of which platform the original event originated from.
-//
-// This helps abstract away platform-specific differences and allows uniform event handling.
+// OnEvent registers platform-agnostic event listeners and normalizes them.
 func OnEvent(callback func(types.Event)) {
-	// Discord event listeners
 	if Discord != nil {
-		// Handle Discord message creation
+		// Discord Message Events
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageCreate) {
 			callback(types.Event{
-				Name:     fmt.Sprintf("%T", e),
+				Name:     "MessageCreate",
 				Type:     types.MessageCreate,
 				Platform: "Discord",
 				Bot:      e.Author.Bot,
@@ -37,10 +30,9 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
-		// Handle Discord message updates
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageUpdate) {
 			callback(types.Event{
-				Name:     fmt.Sprintf("%T", e),
+				Name:     "MessageUpdate",
 				Type:     types.MessageUpdate,
 				Platform: "Discord",
 				Bot:      e.Author.Bot,
@@ -57,56 +49,21 @@ func OnEvent(callback func(types.Event)) {
 			})
 		})
 
-		// Handle Discord message deletions
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageDelete) {
 			callback(types.Event{
-				Name:     fmt.Sprintf("%T", e),
+				Name:     "MessageDelete",
 				Type:     types.MessageDelete,
-				Platform: "Discord",
-				Bot:      e.Author.Bot,
-				Context:  e,
-				Session:  s,
-				Data: types.MessageCallback{
-					Content: e.Content,
-					Author: types.User{
-						ID:       e.Author.ID,
-						Username: e.Author.Username,
-						Avatar:   e.Author.AvatarURL("128"),
-					},
-				},
-			})
-		})
-
-		// Handle Discord reaction additions
-		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageReactionAdd) {
-			callback(types.Event{
-				Name:     fmt.Sprintf("%T", e),
-				Type:     types.ReactionAdd,
-				Platform: "Discord",
-				Bot:      e.Member.User.Bot,
-				Context:  e,
-				Session:  s,
-				Data:     nil,
-			})
-		})
-
-		// Handle Discord reaction removals
-		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.MessageReactionRemove) {
-			callback(types.Event{
-				Name:     fmt.Sprintf("%T", e),
-				Type:     types.ReactionRemove,
 				Platform: "Discord",
 				Bot:      false,
 				Context:  e,
 				Session:  s,
-				Data:     nil,
 			})
 		})
 
-		// Handle Discord interactions (e.g., slash commands)
+		// Discord Interaction Events
 		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.InteractionCreate) {
 			callback(types.Event{
-				Name:     fmt.Sprintf("%T", e),
+				Name:     "InteractionCreate",
 				Type:     types.InteractionCreate,
 				Platform: "Discord",
 				Bot:      false,
@@ -115,6 +72,7 @@ func OnEvent(callback func(types.Event)) {
 				Data: types.InteractionCallback{
 					Name:   e.ApplicationCommandData().Name,
 					Fields: convertOptionsToMap(e.ApplicationCommandData().Options),
+					Data:   e,
 					Author: types.User{
 						ID:       e.Member.User.ID,
 						Username: e.Member.User.Username,
@@ -123,98 +81,223 @@ func OnEvent(callback func(types.Event)) {
 				},
 			})
 		})
+
+		// Discord Extra Events
+		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.TypingStart) {
+			callback(types.Event{
+				Name:     "TypingStart",
+				Type:     types.EventTypingStart,
+				Platform: "Discord",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
+				Data:     types.User{ID: e.UserID},
+			})
+		})
+
+		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.VoiceStateUpdate) {
+			callback(types.Event{
+				Name:     "VoiceStateUpdate",
+				Type:     types.EventVoiceStateUpdate,
+				Platform: "Discord",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
+			})
+		})
+
+		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.PresenceUpdate) {
+			callback(types.Event{
+				Name:     "PresenceUpdate",
+				Type:     types.EventPresenceUpdate,
+				Platform: "Discord",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
+			})
+		})
+
+		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.GuildMemberAdd) {
+			callback(types.Event{
+				Name:     "GuildMemberAdd",
+				Type:     types.EventGuildMemberAdd,
+				Platform: "Discord",
+				Bot:      e.User.Bot,
+				Context:  e,
+				Session:  s,
+				Data: types.User{
+					ID:       e.User.ID,
+					Username: e.User.Username,
+					Avatar:   e.User.AvatarURL("128"),
+				},
+			})
+		})
+
+		Discord.AddHandler(func(s *discordgo.Session, e *discordgo.GuildMemberRemove) {
+			callback(types.Event{
+				Name:     "GuildMemberRemove",
+				Type:     types.EventGuildMemberRemove,
+				Platform: "Discord",
+				Bot:      e.User.Bot,
+				Context:  e,
+				Session:  s,
+				Data: types.User{
+					ID:       e.User.ID,
+					Username: e.User.Username,
+					Avatar:   e.User.AvatarURL("128"),
+				},
+			})
+		})
 	}
 
-	// Revolt event listeners
 	if Revolt != nil {
-		// Handle Revolt message creation
-		Revolt.AddHandler(func(s *revoltgo.Session, m *revoltgo.EventMessage) {
-			authorData, err := Revolt.User(m.Author)
-			if err != nil {
-				fmt.Println("Failed to fetch Revolt user data:", err)
-				return
-			}
-
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventMessage) {
+			user, _ := Revolt.User(e.Author)
 			callback(types.Event{
-				Name:     fmt.Sprintf("%T", m),
+				Name:     "MessageCreate",
 				Type:     types.MessageCreate,
 				Platform: "Revolt",
-				Bot:      authorData.Bot != nil,
-				Context:  m,
+				Bot:      user.Bot != nil,
+				Context:  e,
 				Session:  s,
 				Data: types.MessageCallback{
-					Content: m.Content,
+					Content: e.Content,
 					Author: types.User{
-						ID:       authorData.ID,
-						Username: authorData.Username,
-						Avatar:   authorData.Avatar.URL("128"),
+						ID:       user.ID,
+						Username: user.Username,
+						Avatar:   user.Avatar.URL("128"),
 					},
 				},
 			})
 		})
 
-		// Handle Revolt message updates
-		Revolt.AddHandler(func(s *revoltgo.Session, m *revoltgo.EventMessageUpdate) {
-			authorData, err := Revolt.User(m.Data.Author)
-			if err != nil {
-				fmt.Println("Failed to fetch Revolt user data:", err)
-				return
-			}
-
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventMessageUpdate) {
+			user, _ := Revolt.User(e.Data.Author)
 			callback(types.Event{
-				Name:     fmt.Sprintf("%T", m),
+				Name:     "MessageUpdate",
 				Type:     types.MessageUpdate,
 				Platform: "Revolt",
-				Bot:      authorData.Bot != nil,
-				Context:  m,
+				Bot:      user.Bot != nil,
+				Context:  e,
 				Session:  s,
 				Data: types.MessageCallback{
-					Content: m.Data.Content,
+					Content: e.Data.Content,
 					Author: types.User{
-						ID:       authorData.ID,
-						Username: authorData.Username,
-						Avatar:   authorData.Avatar.URL("128"),
+						ID:       user.ID,
+						Username: user.Username,
+						Avatar:   user.Avatar.URL("128"),
 					},
 				},
 			})
 		})
 
-		// Handle Revolt message deletions
-		Revolt.AddHandler(func(s *revoltgo.Session, m *revoltgo.EventMessageDelete) {
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventMessageDelete) {
 			callback(types.Event{
-				Name:     fmt.Sprintf("%T", m),
+				Name:     "MessageDelete",
 				Type:     types.MessageDelete,
 				Platform: "Revolt",
 				Bot:      false,
-				Context:  m,
+				Context:  e,
 				Session:  s,
-				Data:     nil,
 			})
 		})
 
-		// Handle Revolt reaction additions
-		Revolt.AddHandler(func(s *revoltgo.Session, m *revoltgo.EventMessageReact) {
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventMessageReact) {
 			callback(types.Event{
-				Name:     fmt.Sprintf("%T", m),
+				Name:     "ReactionAdd",
 				Type:     types.ReactionAdd,
 				Platform: "Revolt",
 				Bot:      false,
-				Context:  m,
+				Context:  e,
 				Session:  s,
-				Data:     nil,
 			})
 		})
 
-		// Handle Revolt reaction removals
-		Revolt.AddHandler(func(s *revoltgo.Session, m *revoltgo.EventMessageRemoveReaction) {
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventMessageRemoveReaction) {
 			callback(types.Event{
-				Name:     fmt.Sprintf("%T", m),
+				Name:     "ReactionRemove",
 				Type:     types.ReactionRemove,
 				Platform: "Revolt",
 				Bot:      false,
-				Context:  m,
+				Context:  e,
 				Session:  s,
-				Data:     nil,
+			})
+		})
+
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventChannelStartTyping) {
+			callback(types.Event{
+				Name:     "TypingStart",
+				Type:     types.EventTypingStart,
+				Platform: "Revolt",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
+			})
+		})
+
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventChannelCreate) {
+			callback(types.Event{
+				Name:     "ChannelCreate",
+				Type:     types.EventChannelCreate,
+				Platform: "Revolt",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
+			})
+		})
+
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventChannelUpdate) {
+			callback(types.Event{
+				Name:     "ChannelUpdate",
+				Type:     types.EventChannelUpdate,
+				Platform: "Revolt",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
+			})
+		})
+
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventChannelDelete) {
+			callback(types.Event{
+				Name:     "ChannelDelete",
+				Type:     types.EventChannelDelete,
+				Platform: "Revolt",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
+			})
+		})
+
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventUserUpdate) {
+			callback(types.Event{
+				Name:     "UserUpdate",
+				Type:     types.EventUserUpdate,
+				Platform: "Revolt",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
+			})
+		})
+
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventServerMemberJoin) {
+			callback(types.Event{
+				Name:     "MemberJoin",
+				Type:     types.EventMemberJoin,
+				Platform: "Revolt",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
+			})
+		})
+
+		Revolt.AddHandler(func(s *revoltgo.Session, e *revoltgo.EventServerMemberLeave) {
+			callback(types.Event{
+				Name:     "MemberLeave",
+				Type:     types.EventMemberLeave,
+				Platform: "Revolt",
+				Bot:      false,
+				Context:  e,
+				Session:  s,
 			})
 		})
 	}
