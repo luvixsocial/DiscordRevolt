@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"whiskercat/functions"
-	"whiskercat/types"
+	"github.com/luvixsocial/whiskercat/types"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sentinelb51/revoltgo"

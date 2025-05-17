@@ -6,7 +6,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/sentinelb51/revoltgo"
 
-	"whiskercat/types"
+	"github.com/luvixsocial/whiskercat/types"
 )
 
 // SetStatus updates the activity and presence status for both Discord and Revolt clients.

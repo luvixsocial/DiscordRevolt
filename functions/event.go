@@ -4,7 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/sentinelb51/revoltgo"
 
-	"whiskercat/types"
+	"github.com/luvixsocial/whiskercat/types"
 )
 
 // OnEvent registers platform-agnostic event listeners and normalizes them.
