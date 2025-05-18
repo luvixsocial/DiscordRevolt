@@ -2,171 +2,119 @@ package types
 
 import "github.com/bwmarrin/discordgo"
 
-// EventType represents the type of event received from a chat platform.
+// EventType defines supported platform event types.
 type EventType string
 
 const (
-	// MessageCreate is triggered when a new message is created.
-	MessageCreate EventType = "MessageCreate"
-
-	// MessageUpdate is triggered when an existing message is edited.
-	MessageUpdate EventType = "MessageUpdate"
-
-	// MessageDelete is triggered when a message is deleted.
-	MessageDelete EventType = "MessageDelete"
-
-	// ReactionAdd is triggered when a reaction is added to a message.
-	ReactionAdd EventType = "ReactionAdd"
-
-	// ReactionRemove is triggered when a reaction is removed from a message.
-	ReactionRemove EventType = "ReactionRemove"
-
-	// InteractionCreate is triggered when an interaction is received (e.g., slash command).
-	InteractionCreate EventType = "InteractionCreate"
-
-	// TypingStart is triggered when a user starts typing.
-	EventTypingStart EventType = "TypingStart"
-
-	// VoiceStateUpdate is triggered when a voice state changes.
-	EventVoiceStateUpdate EventType = "VoiceStateUpdate"
-
-	// PresenceUpdate is triggered when a presence is updated.
-	EventPresenceUpdate EventType = "PresenceUpdate"
-
-	// GuildMemberAdd is triggered when a user joins a guild.
-	EventGuildMemberAdd EventType = "GuildMemberAdd"
-
-	// GuildMemberRemove is triggered when a user leaves a guild.
+	MessageCreate          EventType = "MessageCreate"
+	MessageUpdate          EventType = "MessageUpdate"
+	MessageDelete          EventType = "MessageDelete"
+	ReactionAdd            EventType = "ReactionAdd"
+	ReactionRemove         EventType = "ReactionRemove"
+	InteractionCreate      EventType = "InteractionCreate"
+	EventTypingStart       EventType = "TypingStart"
+	EventVoiceStateUpdate  EventType = "VoiceStateUpdate"
+	EventPresenceUpdate    EventType = "PresenceUpdate"
+	EventGuildMemberAdd    EventType = "GuildMemberAdd"
 	EventGuildMemberRemove EventType = "GuildMemberRemove"
-
-	// ChannelCreate is triggered when a new channel is created.
-	EventChannelCreate EventType = "ChannelCreate"
-
-	// ChannelUpdate is triggered when a channel is updated.
-	EventChannelUpdate EventType = "ChannelUpdate"
-
-	// ChannelDelete is triggered when a channel is deleted.
-	EventChannelDelete EventType = "ChannelDelete"
-
-	// UserUpdate is triggered when a user updates their profile.
-	EventUserUpdate EventType = "UserUpdate"
-
-	// MemberJoin is triggered when a user joins a server (Revolt).
-	EventMemberJoin EventType = "MemberJoin"
-
-	// MemberLeave is triggered when a user leaves a server (Revolt).
-	EventMemberLeave EventType = "MemberLeave"
+	EventChannelCreate     EventType = "ChannelCreate"
+	EventChannelUpdate     EventType = "ChannelUpdate"
+	EventChannelDelete     EventType = "ChannelDelete"
+	EventUserUpdate        EventType = "UserUpdate"
+	EventMemberJoin        EventType = "MemberJoin"  // Revolt specific
+	EventMemberLeave       EventType = "MemberLeave" // Revolt specific
 )
 
-// Event holds information about a received platform event.
+// Event represents a normalized platform event.
 type Event struct {
-	// Name is an optional identifier for the event (custom or descriptive).
-	Name string
-
-	// Type specifies the type of event (e.g., MessageCreate).
-	Type EventType
-
-	// Platform indicates which platform the event originated from (e.g., "Discord", "Revolt").
-	Platform string
-
-	// Bot is true if the event was triggered by the bot itself.
-	Bot bool
-
-	// Context is the raw platform-specific context (e.g., *discordgo.MessageCreate or *revoltgo.EventMessage).
-	Context any
-
-	// Session is the active session for the platform (e.g., *discordgo.Session).
-	Session any
-
-	// Data holds the parsed payload, such as a MessageCallback or InteractionCallback.
-	Data interface{}
+	Name     string    // Optional identifier for the event
+	Type     EventType // The type of event triggered
+	Platform string    // "Discord" or "Revolt"
+	Bot      bool      // True if the event was triggered by a bot
+	Context  any       // The raw platform event (e.g., *discordgo.MessageCreate)
+	Session  any       // The session for the platform
+	Data     any       // Parsed payload like MessageCallback or InteractionCallback
 }
 
-// ActivityType represents the type of activity a bot can display in its presence.
+// ActivityType describes what the bot is shown doing.
 type ActivityType int
 
 const (
-	// ActivityTypeGame shows the bot as "Playing [name]".
-	ActivityTypeGame ActivityType = iota
-
-	// ActivityTypeStreaming shows the bot as "Streaming [name]".
-	ActivityTypeStreaming
-
-	// ActivityTypeListening shows the bot as "Listening to [name]".
-	ActivityTypeListening
-
-	// ActivityTypeWatching shows the bot as "Watching [name]".
-	ActivityTypeWatching
-
-	// ActivityTypeCustom allows a custom status message.
-	ActivityTypeCustom
-
-	// ActivityTypeCompeting shows the bot as "Competing in [name]".
-	ActivityTypeCompeting
+	ActivityTypeGame      ActivityType = iota // Playing
+	ActivityTypeStreaming                     // Streaming
+	ActivityTypeListening                     // Listening to
+	ActivityTypeWatching                      // Watching
+	ActivityTypeCustom                        // Custom status
+	ActivityTypeCompeting                     // Competing in
 )
 
-// DiscordConfig stores Discord-specific bot credentials and settings.
-type DiscordConfig struct {
-	ClientID     string // OAuth2 client ID
-	ClientSecret string // OAuth2 client secret
-	Token        string // Bot token
-}
-
-// RevoltConfig stores Revolt-specific bot credentials.
-type RevoltConfig struct {
-	Token string // Bot token
-}
-
-// Config holds configuration for all supported platforms.
-type Config struct {
-	Discord DiscordConfig
-	Revolt  RevoltConfig
-}
-
-// Presence represents a bot's visibility or availability status.
+// Presence defines bot's online visibility.
 type Presence string
 
 const (
-	// Online indicates the bot is active and visible.
-	Online Presence = "Online"
-
-	// Idle indicates the bot is inactive but still online.
-	Idle Presence = "Idle"
-
-	// DND means "Do Not Disturb"; the bot won't respond.
-	DND Presence = "DND"
-
-	// Busy is a custom presence indicating the bot is occupied.
-	Busy Presence = "Busy"
-
-	// Invisible appears offline to users.
+	Online    Presence = "Online"
+	Idle      Presence = "Idle"
+	DND       Presence = "DND"
+	Busy      Presence = "Busy"
 	Invisible Presence = "Invisible"
 )
 
-// User defines a basic user structure returned by chat APIs.
+// DiscordConfig contains Discord credentials.
+type DiscordConfig struct {
+	ClientID     string // OAuth2 Client ID
+	ClientSecret string // OAuth2 Client Secret
+	Token        string // Bot Token
+}
+
+// RevoltConfig contains Revolt credentials.
+type RevoltConfig struct {
+	Token string // Bot Token
+}
+
+// AuthConfig aggregates credentials for all platforms.
+type AuthConfig struct {
+	Discord DiscordConfig // Discord configuration
+	Revolt  RevoltConfig  // Revolt configuration
+}
+
+// User represents a basic user identity.
 type User struct {
 	ID       string // Unique user ID
-	Username string // Display name or tag
-	Avatar   string // URL or identifier for the user's avatar
+	Username string // Display name
+	Avatar   string // Avatar URL or identifier
 }
 
-// MessageCallback represents the content and author of a received message.
+// MessageCallback wraps a received message and author.
 type MessageCallback struct {
-	Content string // Message text content
-	Author  User   // User who sent the message
+	Content string // Message content
+	Author  User   // Message author
 }
 
-// InteractionCallback represents data sent with a user interaction, such as a slash command.
+// InteractionCallback holds interaction data like slash commands.
 type InteractionCallback struct {
-	Name   string            // Command or interaction name
-	Fields map[string]string // Key-value pairs of submitted form data or arguments
-	Data   *discordgo.InteractionCreate
-	Author User // User who initiated the interaction
+	Name   string                       // Name of the interaction/command
+	Fields map[string]string            // Option key-value map
+	Data   *discordgo.InteractionCreate // Raw interaction object (Discord only)
+	Author User                         // Command invoker
 }
 
-// Embed defines a rich content structure for sending styled messages.
+// Embed defines a structured rich message.
 type Embed struct {
-	Title       string // Title of the embed
-	Description string // Body content of the embed
-	Color       int    // Color accent (integer representing a hex code)
+	Title       string        // Embed title
+	Description string        // Main content body
+	IconURL     *string       // Icon URL
+	PhotoURL    *string       // Image URL
+	URL         *string       // Link to the embed
+	Fields      *[]EmbedField // List of fields
+	Footer      *EmbedFooter  // Footer text
+	Color       int           // Accent color as integer (hex)
+}
+type EmbedFooter struct {
+	Text     string // Footer text
+	PhotoURL string // Footer Photo URL
+}
+type EmbedField struct {
+	Name   string // Field name
+	Value  string // Field value
+	Inline bool   // Whether to display inline
 }

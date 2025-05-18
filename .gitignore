@@ -2,4 +2,4 @@ config.yaml
 whiskercat
 go.sum
 venv
-test.go
+/test.go

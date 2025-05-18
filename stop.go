@@ -1,4 +1,4 @@
-package functions
+package main
 
 // Stop both Discord and Revolt clients.
 func Stop() {
